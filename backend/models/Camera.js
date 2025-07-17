@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const cameraSchema = new mongoose.Schema(
   {
+    cameraId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,

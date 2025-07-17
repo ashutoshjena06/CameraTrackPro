@@ -3,8 +3,14 @@ const Camera = require("../models/Camera");
 // Add Camera
 const addCamera = async (req, res) => {
   try {
-    const { name, location, streamUrl, status } = req.body;
-    const camera = await Camera.create({ name, location, streamUrl, status });
+    const { cameraId, name, location, streamUrl, status } = req.body;
+    const camera = await Camera.create({
+      cameraId,
+      name,
+      location,
+      streamUrl,
+      status,
+    });
     res.status(201).json(camera);
   } catch (err) {
     res
@@ -71,10 +77,71 @@ const getCameraById = async (req, res) => {
   }
 };
 
+// ✅ Start Camera (sets status to Active)
+const startCamera = async (req, res) => {
+  try {
+    const camera = await Camera.findByIdAndUpdate(
+      req.params.id,
+      { status: "Active" },
+      { new: true }
+    );
+    if (!camera) return res.status(404).json({ message: "Camera not found" });
+    res.json({ message: "Camera started", camera });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error starting camera", error: err.message });
+  }
+};
+
+// ⏹️ Stop Camera (sets status to Inactive)
+const stopCamera = async (req, res) => {
+  try {
+    const camera = await Camera.findByIdAndUpdate(
+      req.params.id,
+      { status: "Inactive" },
+      { new: true }
+    );
+    if (!camera) return res.status(404).json({ message: "Camera not found" });
+    res.json({ message: "Camera stopped", camera });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error stopping camera", error: err.message });
+  }
+};
+
+// 🎥 Start Recording (you can later implement actual recording logic)
+const startRecording = async (req, res) => {
+  try {
+    // This is just a mock — ideally you trigger FFmpeg or another tool here
+    res.json({ message: `Recording started for camera ${req.params.id}` });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error starting recording", error: err.message });
+  }
+};
+
+// ⏹️ Stop Recording (mock)
+const stopRecording = async (req, res) => {
+  try {
+    res.json({ message: `Recording stopped for camera ${req.params.id}` });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error stopping recording", error: err.message });
+  }
+};
+
 module.exports = {
   addCamera,
   updateCamera,
   deleteCamera,
   getAllCameras,
   getCameraById,
+  startCamera,
+  stopCamera,
+  startRecording,
+  stopRecording,
 };

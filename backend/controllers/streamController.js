@@ -6,20 +6,66 @@ const {
 } = require("../utils/ffmpegUtils");
 
 // Live stream redirection (for MJPEG/HTTP preview)
+const http = require("http");
+
 const getStream = async (req, res) => {
+  console.log("🔁 getStream called");
   try {
     const { cameraId } = req.params;
-    const camera = await Camera.findById(cameraId);
+    const camera = await Camera.findOne({ cameraId });
 
     if (!camera || camera.status !== "Active") {
       return res.status(404).json({ message: "Camera not found or inactive" });
     }
 
-    // Redirect to stream URL (e.g., MJPEG HTTP stream)
-    return res.redirect(camera.streamUrl);
+    const streamUrl = camera.streamUrl;
+
+    // Avoid redirect loop if stream URL is hitting same endpoint
+    if (streamUrl.includes("/api/stream")) {
+      return res
+        .status(400)
+        .json({ message: "Invalid stream URL - causes redirect loop" });
+    }
+
+    // Set MJPEG stream headers once
+    res.writeHead(200, {
+      "Content-Type": "multipart/x-mixed-replace; boundary=frame",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      Pragma: "no-cache",
+    });
+
+    // Pipe stream from MJPEG source to client
+    const proxyReq = http.get(streamUrl, (streamRes) => {
+      streamRes.on("data", (chunk) => {
+        if (!res.writableEnded) res.write(chunk);
+      });
+
+      streamRes.on("end", () => {
+        console.log("📴 Stream ended");
+        if (!res.writableEnded) res.end();
+      });
+
+      streamRes.on("error", (err) => {
+        console.error("⛔ Stream read error:", err.message);
+        if (!res.writableEnded) res.end();
+      });
+    });
+
+    proxyReq.on("error", (err) => {
+      console.error("❌ Proxy connection error:", err.message);
+      if (!res.headersSent && !res.writableEnded) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Stream unavailable");
+      } else if (!res.writableEnded) {
+        res.end();
+      }
+    });
   } catch (err) {
-    console.error("Stream error:", err.message);
-    res.status(500).json({ message: "Unable to load stream" });
+    console.error("🔥 Server error in getStream:", err.message);
+    if (!res.headersSent && !res.writableEnded) {
+      res.status(500).json({ message: "Unable to load stream" });
+    }
   }
 };
 
