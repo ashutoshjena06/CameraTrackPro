@@ -4,7 +4,6 @@ import { Form, Button, Container, Card } from "react-bootstrap";
 import API from "../services/api";
 
 const Login = () => {
-  console.log("hii this is login page ");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -23,8 +22,21 @@ const Login = () => {
   };
 
   return (
-    <Container className="mt-5 d-flex justify-content-center">
-      <Card style={{ width: "25rem" }} className="p-4 shadow">
+    <div
+      style={{
+        backgroundImage: `url('/login-bg.jpeg')`, // Make sure the image is in public/images folder
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Card
+        style={{ width: "25rem", backdropFilter: "blur(8px)" }}
+        className="p-4 shadow bg-white bg-opacity-75"
+      >
         <h3 className="text-center mb-4">Admin Login</h3>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="email" className="mb-3">
@@ -54,7 +66,7 @@ const Login = () => {
           </Button>
         </Form>
       </Card>
-    </Container>
+    </div>
   );
 };
 
