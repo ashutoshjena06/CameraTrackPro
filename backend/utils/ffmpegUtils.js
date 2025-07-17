@@ -18,13 +18,18 @@ const startRecording = (cameraId, streamUrl) => {
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const outputFile = path.join(recordingsDir, `${cameraId}_${timestamp}.mp4`);
+  const cameraFolder = path.join(recordingsDir, cameraId);
+  if (!fs.existsSync(cameraFolder)) {
+    fs.mkdirSync(cameraFolder, { recursive: true });
+  }
+
+  const outputFile = path.join(cameraFolder, `${timestamp}.mp4`);
 
   const ffmpeg = spawn("ffmpeg", [
     "-i",
     streamUrl,
     "-c",
-    "copy", // Direct stream copy (efficient for MJPEG/RTSP/HLS)
+    "copy",
     "-f",
     "mp4",
     outputFile,

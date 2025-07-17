@@ -5,6 +5,10 @@ const {
   deleteCamera,
   getAllCameras,
   getCameraById,
+  startCamera,
+  stopCamera,
+  startRecording,
+  stopRecording,
 } = require("../controllers/cameraController");
 
 const router = express.Router();
@@ -23,5 +27,11 @@ router.get("/", getAllCameras);
 
 // Route to get a single camera by ID
 router.get("/:id", getCameraById);
+
+// 🔁 New Actions
+router.post("/start/:id", startCamera);
+router.post("/stop/:id", stopCamera);
+router.post("/record/start/:id", startRecording);
+router.post("/record/stop/:id", stopRecording);
 
 module.exports = router;
