@@ -12,7 +12,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("Hii from handlesubmit");
       const res = await API.post("/auth/login", { email, password });
+
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err) {

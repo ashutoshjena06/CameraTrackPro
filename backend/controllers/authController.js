@@ -27,11 +27,12 @@ const registerAdmin = async (req, res) => {
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log(email, "------", password);
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
+    console.log("------>>> ", user);
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("isMatch ", isMatch);
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
