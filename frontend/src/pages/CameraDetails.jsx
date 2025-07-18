@@ -1,9 +1,11 @@
+//CameraDetails.jsx
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Container, Card, Spinner } from "react-bootstrap";
 import API from "../services/api";
 
 const CameraDetails = () => {
+  console.log("hii from CameraDetails");
   const { id } = useParams();
   const [camera, setCamera] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ const CameraDetails = () => {
           <img
             src={
               camera.status === "Active"
-                ? `http://localhost:3002/api/stream/${camera._id}`
+                ? `http://localhost:3002/api/stream/${camera.cameraId}`
                 : "/offline-placeholder.jpg"
             }
             alt={camera.name}

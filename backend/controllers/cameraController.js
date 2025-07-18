@@ -1,5 +1,10 @@
+//cameracontroller.js
 const Camera = require("../models/Camera");
-
+const {
+  startCameraStream,
+  stopCameraStream,
+  getActiveStreams,
+} = require("../utils/cameraStreamUtils");
 // Add Camera
 const addCamera = async (req, res) => {
   try {
@@ -9,6 +14,7 @@ const addCamera = async (req, res) => {
       name,
       location,
       streamUrl,
+      streamCommand,
       status,
     });
     res.status(201).json(camera);
@@ -66,7 +72,7 @@ const getAllCameras = async (req, res) => {
 // Get Single Camera
 const getCameraById = async (req, res) => {
   try {
-    const camera = await Camera.findById(req.params.id);
+    const camera = await Camera.findOne(req.params.Id);
     if (!camera || camera.isDeleted)
       return res.status(404).json({ message: "Camera not found" });
     res.json(camera);
@@ -78,14 +84,20 @@ const getCameraById = async (req, res) => {
 };
 
 // ✅ Start Camera (sets status to Active)
+// ✅ Start Camera (sets status to Active and starts streaming process)
 const startCamera = async (req, res) => {
+  console.log("startCamera", req.params.id);
   try {
-    const camera = await Camera.findByIdAndUpdate(
-      req.params.id,
-      { status: "Active" },
-      { new: true }
-    );
+    const camera = await Camera.findById(req.params.id);
     if (!camera) return res.status(404).json({ message: "Camera not found" });
+
+    // Start the streaming process
+    startCameraStream(camera.cameraId, camera.streamCommand);
+
+    // Update database status
+    camera.status = "Active";
+    await camera.save();
+
     res.json({ message: "Camera started", camera });
   } catch (err) {
     res
@@ -94,20 +106,36 @@ const startCamera = async (req, res) => {
   }
 };
 
-// ⏹️ Stop Camera (sets status to Inactive)
+// ⏹️ Stop Camera (sets status to Inactive and stops streaming process)
 const stopCamera = async (req, res) => {
+  console.log("stopCamera", req.params.id);
   try {
-    const camera = await Camera.findByIdAndUpdate(
-      req.params.id,
-      { status: "Inactive" },
-      { new: true }
-    );
+    const camera = await Camera.findById(req.params.id);
+    // console.log("camera", camera);
     if (!camera) return res.status(404).json({ message: "Camera not found" });
+
+    // Stop the streaming process
+    stopCameraStream(camera.cameraId);
+
+    // Update database status
+    camera.status = "Inactive";
+    await camera.save();
+
     res.json({ message: "Camera stopped", camera });
   } catch (err) {
     res
       .status(500)
       .json({ message: "Error stopping camera", error: err.message });
+  }
+};
+
+// Get active streaming cameras
+const getActiveStreamingCameras = (req, res) => {
+  try {
+    const activeStreams = getActiveStreams();
+    res.json({ activeStreams });
+  } catch (err) {
+    res.status(500).json({ message: "Error getting active streams" });
   }
 };
 
@@ -144,4 +172,5 @@ module.exports = {
   stopCamera,
   startRecording,
   stopRecording,
+  getActiveStreamingCameras,
 };

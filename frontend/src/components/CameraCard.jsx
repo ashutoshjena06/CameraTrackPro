@@ -1,24 +1,67 @@
+//CameraCard.jsx
+import { useEffect } from "react";
+import { useState } from "react";
 import { Card, Button, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const CameraCard = ({ cam, onToggleCamera }) => {
   const navigate = useNavigate();
+  const getTime = () => {
+    const now = new Date();
+    const day = now.getDate();
+    const month = now.getMonth() + 1; // Months are 0-based
+    const year = now.getFullYear();
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const seconds = now.getSeconds().toString().padStart(2, "0");
 
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const [currentTime, setCurrentTime] = useState(getTime());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(getTime());
+    }, 1000);
+  });
   return (
     <Card className="shadow mb-4">
-      <Card.Img
-        variant="top"
-        src={
-          cam.status === "Active"
-            ? `http://localhost:3002/api/stream/${cam.cameraId}`
-            : "/offline-placeholder.jpg"
-        }
-        alt={cam.name}
-        style={{ height: "200px", objectFit: "cover" }}
-      />
+      {cam.status === "Active" ? (
+        <Card.Img
+          variant="top"
+          src={`http://localhost:3002/api/stream/${cam.cameraId}`}
+          style={{
+            height: "220px",
+            objectFit: "cover",
+            borderTopLeftRadius: "0.5rem",
+            borderTopRightRadius: "0.5rem",
+          }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/offline-placeholder.jpg";
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            height: "220px",
+            background: "#222",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderTopLeftRadius: "0.5rem",
+            borderTopRightRadius: "0.5rem",
+          }}
+        >
+          Camera is inactive
+        </div>
+      )}
       <Card.Body>
         <Card.Title>{cam.name}</Card.Title>
-        <Card.Text>{new Date(cam.createdAt).toLocaleString()}</Card.Text>
+        <Card.Text className="text-muted" style={{ fontSize: "0.9rem" }}>
+          ⏱️ {currentTime}
+        </Card.Text>
         <Badge
           bg={cam.status === "Active" ? "success" : "secondary"}
           className="mb-2"

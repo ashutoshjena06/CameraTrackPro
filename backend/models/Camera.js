@@ -24,6 +24,7 @@ const cameraSchema = new mongoose.Schema(
       enum: ["Active", "Inactive"],
       default: "Active",
     },
+    streamCommand: { type: String, required: true },
     isDeleted: {
       type: Boolean,
       default: false,
