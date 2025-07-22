@@ -67,6 +67,7 @@ const Dashboard = () => {
   };
 
   const handleView = (cameraId) => {
+    console.log("cameraId", cameraId);
     navigate(`/camera/${cameraId}`);
   };
 

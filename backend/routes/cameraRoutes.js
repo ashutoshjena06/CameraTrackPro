@@ -8,8 +8,8 @@ const {
   getCameraById,
   startCamera,
   stopCamera,
-  startRecording,
-  stopRecording,
+  // startRecording,
+  // stopRecording,
   getActiveStreamingCameras,
 } = require("../controllers/cameraController");
 
@@ -35,7 +35,7 @@ router.post("/start/:id", startCamera);
 router.post("/stop/:id", stopCamera);
 // Route to get active streaming cameras
 router.get("/active-streams", getActiveStreamingCameras);
-router.post("/record/start/:id", startRecording);
-router.post("/record/stop/:id", stopRecording);
+// router.post("/record/start/:id", startRecording);
+// router.post("/record/stop/:id", stopRecording);
 
 module.exports = router;

@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import CameraDetails from "./pages/CameraDetails";
 import CameraList from "./pages/CameraList";
+import Recordings from "./pages/Recordings";
 import Header from "./components/Header";
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/cameras" element={<CameraList />} />
         <Route path="/camera/:id" element={<CameraDetails />} />
+        <Route path="/recordings" element={<Recordings />} />
       </Routes>
     </>
   );

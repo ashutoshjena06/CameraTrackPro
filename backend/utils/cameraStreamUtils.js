@@ -1,3 +1,5 @@
+//cameraStreamUtils.js
+
 const { spawn } = require("child_process");
 const activeStreams = new Map(); // cameraId → ChildProcess
 
@@ -7,6 +9,8 @@ const activeStreams = new Map(); // cameraId → ChildProcess
  * @param {string} streamCommand  Full FFmpeg command as string (from DB)
  */
 function startCameraStream(cameraId, streamCommand) {
+ // console.log("startCameraStream", cameraId, streamCommand);
+ 
   if (activeStreams.has(cameraId)) return;
 
   // Remove "ffmpeg" from the start if present
@@ -31,6 +35,7 @@ function startCameraStream(cameraId, streamCommand) {
   });
 
   activeStreams.set(cameraId, proc);
+  //console.log("startCameraStream--activeStreams", activeStreams);
 }
 
 /**
@@ -38,7 +43,8 @@ function startCameraStream(cameraId, streamCommand) {
  * @param {string} cameraId
  */
 function stopCameraStream(cameraId) {
-  console.log("stopCameraStream", cameraId);
+//console.log("stopCameraStream", cameraId);
+ // console.log("activeStreams", activeStreams);
   const proc = activeStreams.get(cameraId);
 
   if (!proc) {
@@ -47,7 +53,7 @@ function stopCameraStream(cameraId) {
   }
 
   const pid = proc.pid;
-  console.log(`Force-killing camera stream for ${cameraId} (PID ${pid})`);
+ // console.log(`Force-killing camera stream for ${cameraId} (PID ${pid})`);
   require("child_process").exec(`taskkill /PID ${pid} /F /T`, (err) => {
     if (!err) {
       console.log(`Force-killed camera stream for ${cameraId} (PID ${pid})`);

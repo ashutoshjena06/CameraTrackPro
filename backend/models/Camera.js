@@ -19,6 +19,16 @@ const cameraSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    type: {
+      type: String,
+      enum: ["webcam", "ip"],
+      required: true,
+    },
+    deviceName: {
+      type: String,
+      required: function() { return this.type === "webcam"; },
+    },
+    audioDeviceName: { type: String, required: false },
     status: {
       type: String,
       enum: ["Active", "Inactive"],

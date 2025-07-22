@@ -43,7 +43,7 @@ const CameraRecordings = () => {
           <Col md={4} key={index} className="mb-4">
             <Card className="shadow">
               <video
-                src={`http://localhost:3002/uploads/${video.filename}`}
+                src={`http://localhost:3002${video.url}`}
                 controls
                 className="w-100"
               ></video>

@@ -1,5 +1,6 @@
 //streamController
 const Camera = require("../models/Camera");
+const { stopCameraStream, startCameraStream } = require("../utils/cameraStreamUtils");
 const {
   startRecording,
   stopRecording,
@@ -13,8 +14,9 @@ const getStream = async (req, res) => {
   console.log("🔁 getStream called");
   try {
     const { cameraId } = req.params;
+    console.log("cameraId", cameraId);
     const camera = await Camera.findOne({ cameraId });
-
+   // console.log("camera", camera);
     if (!camera || camera.status !== "Active") {
       return res.status(404).json({ message: "Camera not found or inactive" });
     }
@@ -72,15 +74,20 @@ const getStream = async (req, res) => {
 
 // Start recording a camera stream
 const startCameraRecording = async (req, res) => {
+  console.log("startCameraRecording", req.params);
   try {
     const { cameraId } = req.params;
+    console.log("startCameraRecording cameraId ==> ", cameraId);
     const camera = await Camera.findById(cameraId);
+   // console.log("camera", camera);
+    // if (!camera || camera.status !== "Active") {
+    //   return res.status(404).json({ message: "Camera not found or inactive" });
+    // }
+    stopCameraStream(camera.cameraId);
+    setTimeout(() => {
+      startRecording(camera); // Give FFmpeg time to release webcam
+    }, 500); // Wait 0.5s before recording
 
-    if (!camera || camera.status !== "Active") {
-      return res.status(404).json({ message: "Camera not found or inactive" });
-    }
-
-    startRecording(cameraId, camera.streamUrl);
     res.json({ message: `Recording started for camera ${cameraId}` });
   } catch (err) {
     console.error("Start recording error:", err.message);
@@ -91,9 +98,18 @@ const startCameraRecording = async (req, res) => {
 // Stop recording a camera stream
 const stopCameraRecording = async (req, res) => {
   try {
+    console.log("stopCameraRecording", req.params);
     const { cameraId } = req.params;
-
-    stopRecording(cameraId);
+    console.log("stopCameraRecording cameraId ==> ", cameraId);
+  const camera = await Camera.findById(cameraId);
+    stopRecording(camera.cameraId);
+      // Restart stream only if camera is still marked Active
+      // Restart live stream if still marked Active
+    if (camera.status === "Active") {
+      setTimeout(() => {
+        startCameraStream(camera.cameraId, camera.streamCommand);
+      }, 1000); // Wait 1s to ensure recording process exits
+    }
     res.json({ message: `Recording stopped for camera ${cameraId}` });
   } catch (err) {
     console.error("Stop recording error:", err.message);
